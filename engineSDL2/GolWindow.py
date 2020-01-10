@@ -173,7 +173,9 @@ class Window( WindowBackground, object ):
 
             elif self.mode == "DRAW":
                 self.screenSurface = SDL_GetWindowSurface( m_window );
-
+                
+                #if self.screenSurface == None:
+                 #   print(SDL_GetError())
             self.m_windowId = SDL_GetWindowID( m_window )
             self.m_shown = True;
             SDL_ShowWindow(m_window);
@@ -207,19 +209,26 @@ class Window( WindowBackground, object ):
                 #lock mutexes
                 self.renderLock.acquire()
                 self.updateLock.acquire()
-
+                
                 self.m_width = e.window.data1;
                 self.m_height = e.window.data2;
 
-                if self.mode == "DRAW":
-                    self.m_windowSurface = SDL_GetWindowSurface(self.m_window)
+                # Fixed the instance where the only operation for draw mode 
+                # calls clearRenderer(). Added statements for render 
+                # mode as well.
+                if self.mode == "RENDER":
+                    #self.m_windowSurface = SDL_GetWindowSurface(self.m_window)
                     self.clearRenderer()
                     #SDL_UpdateWindowSurface(self.m_window)
-
+                
+                if self.mode == "DRAW":
+                    #self.m_windowSurface = SDL_GetWindowSurface(self.m_window)
+                    self.clearScreen()
+                    
                 self.updateLock.release()
                 self.renderLock.release()
                 #unlock mutexes
-
+                
             if e.window.event == SDL_WINDOWEVENT_EXPOSED:
                 #Repaint on expose.
                 #lock mutexes
@@ -330,7 +339,7 @@ class Window( WindowBackground, object ):
             self.draw()#self.screenSurface)
 
             self.renderLock.release()
-            time.sleep(0.01) # 100 frames per second
+            time.sleep(0.01) # 100 frames per second max
         print("drawThread:: Stopped")
 
     def clearRenderer(self):

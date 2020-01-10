@@ -113,6 +113,8 @@ def create_new_surface(size = (1, 1), name = None, color = (189, 189, 189)):# TO
     
     newSurface = SDL_CreateRGBSurface(0, width, height, 32,
                                    rmask, gmask, bmask, amask)
+    if (newSurface == None):
+        print(SDL_GetError())
     #SDL_FillRect(newSurface, 0, color);
     print(SDL_MapRGB(newSurface.contents.format , color[0], color[1], color[2]))
     SDL_FillRect(newSurface, SDL_Rect(0,0,100,100), SDL_MapRGB(newSurface.contents.format , color[0], color[1], color[2]));

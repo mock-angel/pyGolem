@@ -1,72 +1,76 @@
 # Sprite.py 
-"""
-    Older version, needs to be updated with added functionality.
-"""
-import sys
+
+import threading
 import ctypes
 from sdl2 import *
 
 import Golem
-import threading
-
-NULL = 0
 
 class SpriteBehaviour(object):
+    """
+    Methods:
+    
+    Variables:
+    m_sprTextures
+        Stores surfaces that the Sprite uses.
+    m_surfaceLock, self.m_textureLock
+        Locks for both surfaces and textures.
+    selectedSurface
+        What the owner gets after SelectSurface
+    m_renderTarget
+        Target for rendering, save here to reduce stack time.
+    
+    """
     SPRITE_DEFAULT = 0
     SPRITE_DISABLED = 1
+    
     def __init__(self):
+        
         self.m_sprTextures = {}
         self.m_sprSurfaces = {} # TODO:Change to surfaceMap?
+        self.selectedSurface = None
         
+        # Locks for multithreading access.
         self.m_surfaceLock = threading.Lock()
         self.m_textureLock = threading.Lock() # FIXME: Not used
         
-        self.reqTexture = None
-        self.reqSurface = None
-        self.selectedSurface = None
-        
-        self.m_renderTarget = None# FIXME: First import  all behaviours
+        self.m_renderTarget = None
         self.renderState = SpriteBehaviour.SPRITE_DEFAULT
         
+        # Add basic Surface keys.
         self.AddSurface("sprite", None)
         self.AddSurface("sprite_disabled", None)
         
-        self.AddTexture("sprite", None)
-        self.AddTexture("sprite_disabled", None)
-        
-        self.m_origin = {
-            # Defines the owership of the contained object.
-            "Surfaces":[],
-            "Textures":[],
-            "Renderer":[],
-        }
-        
-        #self.SetSurface("sprite", Golem.loadSurface("golem.png"))
+        # Do the same for textures.
+#        self.AddTexture("sprite", None)
+#        self.AddTexture("sprite_disabled", None)
         
     def __del__(self):
-        print("~deleted SpriteBehaviour")
-        for surf in self.m_origin["Surfaces"]:
-            SDL_DestroyTexture(surf)
-            
-        for texture in self.m_origin["Textures"]:
-            SDL_DestroyTexture(texture)
-        
-        for renderer in self.m_origin["Renderer"]:
-            SDL_DestroyRenderer(renderer)
-            
+        # Do nothing.
+        # TODO: Get to delete owning textures and sprites.
+        pass
+    
+    
     def AddSurface(self, string, t_surface):
-        
+        """
+            Initialises Key in Surface pool.
+        """
         self.m_surfaceLock.acquire()
         if string in self.m_sprSurfaces:
             self.m_surfaceLock.release()
+            print("Key {} allready existant".format(string))
             return None
         
         self.m_sprSurfaces[string] = t_surface
         self.m_surfaceLock.release()
-        
+    
     def SetSurface(self, string, t_surface):
+        """
+            Sets the key value to a passes surface.
+        """
         self.m_surfaceLock.acquire()
         print ("SetSurface :", string)
+        #self.buffer_flag = True # TODO: compare with previous implementation.
         if string not in self.m_sprSurfaces:
             self.m_surfaceLock.release()
             return None
@@ -83,8 +87,8 @@ class SpriteBehaviour(object):
             
         self.reqSurface = self.m_sprSurfaces[string]
         self.m_surfaceLock.release()
-        return self.reqSurface # FIXME: Used reqSUrface instead of m_sprSurfaces[string]
-        
+        return self.reqSurface
+    
     def SelectSurface(self, string):            # For user use only.
         self.m_surfaceLock.acquire()
         if string not in self.m_sprSurfaces:
@@ -93,80 +97,69 @@ class SpriteBehaviour(object):
             return None
         self.selectedSurface = self.m_sprSurfaces[string]
         self.m_surfaceLock.release()
-        
-    def AddTexture(self, string, t_surface):    #
-        if string in self.m_sprTextures:
-            print("AddTexture(): Key allready exists.")
-            return None
-        
-        self.m_sprTextures[string] = t_surface
-        
-    def SetTexture(self, string, t_surface):    #Thread Friendly method.
-        if string not in self.m_sprTextures:
-            print("AddTexture(): Key does not exist.")
-            return None
-            
-        self.m_sprTextures[string] = t_surface
-        
-    def GetTexture(self, string ):
-        #Render thread Only.
-        if string not in self.m_sprTextures:
-            print("GetTexture(): key non-existant.")
-            return None;
-        self.reqTexture = self.m_sprTextures[string]
-        return self.m_sprTextures[string]
-
-    def updateTextures(self):
-        self.GetSurface("sprite")
-        if (self.reqSurface != None):
-            createdTexture = SDL_CreateTextureFromSurface( self.m_renderTarget, self.reqSurface)
-            if (createdTexture != None): self.SetTexture("sprite", createdTexture )
-        
-        self.GetSurface("sprite_disabled")
-        if (self.reqSurface != None):
-            createdTexture = SDL_CreateTextureFromSurface( self.m_renderTarget, self.reqSurface)
-            if (createdTexture != None): self.SetTexture("sprite_disabled", createdTexture )
-        
-        self.reqSurface = None
-        
-        renderState = self.renderState
-        
-        if renderState == SpriteBehaviour.SPRITE_DEFAULT:
-            self.GetTexture("sprite")
-            if (self.reqTexture != None): self.m_spriteTexture = self.reqTexture;
-            
-            w = ctypes.pointer(ctypes.c_int())
-            h = ctypes.pointer(ctypes.c_int())
-            SDL_QueryTexture(self.m_spriteTexture, None, None, w, h);
-            
-            self.m_rect.w = w.contents.value
-            self.m_rect.h = h.contents.value
-            
-            return
-            
-        if renderState == SpriteBehaviour.SPRITE_DISABLED:
-            self.GetTexture("sprite_disabled")
-            if (self.reqTexture != None): self.m_spriteTexture = self.reqTexture;
-            
-            w = ctypes.pointer(ctypes.c_int())
-            h = ctypes.pointer(ctypes.c_int())
-            SDL_QueryTexture(self.m_spriteTexture, None, None, self.m_rect.w, self.m_rect.h);
-            
-            self.m_rect.w = w.contents.value
-            self.m_rect.h = h.contents.value
-            return
-            
-        self.reqTexture = None
     
     def enscribeTheme(self, keyList, t_theme):
         for key in keyList:
             if key in t_theme:
                 self.SetSurface(key, t_theme[key])
     
-class SpriteTextureOwnership(object):
-    def __init__(self):
-        self.m_OwningTextures
+    def updateSurfBuffer(self):
+        # TODO: FIXME: THIS has problems.
+        
+        renderState = self.renderState
+        
+        if renderState == SpriteBehaviour.SPRITE_DEFAULT:
+            self.GetSurface("sprite")
+            if (self.reqSurface != None): self.m_spriteSurface = self.reqSurface;
+            
+            self.reqSurface == None
+            return
+            
+        if renderState == SpriteBehaviour.SPRITE_DISABLED:
+            self.GetSurface("sprite_disabled")
+            if (self.reqSurface != None): self.m_spriteSurface = self.reqSurface;
+            
+            self.reqSurface == None
+            return
+        
+        self.reqSurface == None
+        
 class Sprite(SpriteBehaviour, object):
+    """
+    Attributes
+    ----------
+            Action control attributes.
+    m_mouseOver
+        True if Mouse is Over the Sprite.
+    m_pressed
+        True if inside m_rect and pressed.
+    m_visible
+        True if visible.
+    m_disabled
+        True if disabled.
+    m_depth
+        0 default. Used to set teh dept of the Sprite.
+        Sprite of depth 1 appears behind sprite of depth 0.
+    
+    m_spriteSurface
+        This surface will be drawn on the screen.
+        
+    Methods
+    -------
+    __init__(window)
+    
+    depth - property
+        changes m_depth value of sprite.
+    
+    
+    Methods Feature Exclusive 
+    -------------------------...anything that returns self sprite.
+    setDepth
+        uses depth property
+    
+    
+    
+    """
     DEFAULTWINDOW = None
     RECENTWINDOW = None
     
@@ -177,24 +170,27 @@ class Sprite(SpriteBehaviour, object):
         
         self.m_mouseOver = False
         self.m_pressed = False
-    
         self.m_visible = True
-        self.m_disabled = False #Used to be m_spriteSettingDisabled
+        self.m_disabled = False
         
         self.m_depth = 0
         
-        self.m_spriteTexture = None
         self.m_spriteSurface = None
+        self.m_spriteTexture = None
         
+        self.buffer_flag = True;
+        
+        self.surface_buffer = True;
+        self.texture_buffer = True;
+        
+        # None if using surfaces only mode.
         self.m_renderTarget = t_window.getRenderer() if t_window else None
-        print ("Printing render stare : ", self.m_renderTarget)
-#        if not self.m_renderTarget:
-#            Golem.log_error("Sprite.__init__(self): created without any renderTarget.")
+        if not self.m_renderTarget:
+            print("Sprite.__init__(self): created without any renderTarget.")
+            #Golem.log_error("Sprite.__init__(self): created without any renderTarget.")
         
-        self.m_rect = Golem.Rect((0, 0), (500, 500))#Golem.Rect()
+        self.m_rect = Golem.Rect((0, 0), (1, 1))
         self.rect = self.m_rect
-        
-        self.m_disabled = False
         
         self.m_callbacks = {
             "onClicked": self.onDummy,
@@ -216,23 +212,13 @@ class Sprite(SpriteBehaviour, object):
             "onEnter": params,
             "onLeave": params,
         }
-        
-        self.m_mouseOver = False
-        self.m_visible = True
-        self.m_disabled = False
-        self.m_pressed = False
-        
-        self.buffer_flag = True;
-    
-    def __del__(self):
-        
-        SpriteBehaviour.__del__(self)
-        print("~deleted Sprite")
-        
+        # TODO: Implement background blitting first.
+        # variable to enable background blitting of sprite maybe?.
+        # variable for buffer for surfaces?
     def setVisible(self, boolean):
         m_visible = bool(boolean)
         return self
-        
+    
     def disable(self):
         self.m_disabled = True
         return self
@@ -242,14 +228,13 @@ class Sprite(SpriteBehaviour, object):
     
     def isDisabled(self):
         return m_disabled
-        
+    
     def getRenderer(self):
         return self.m_renderTarget
-        
+    
     def setTexture(self, t_texture):
         self.m_spriteTexture = self.t_texture
-        #self.m_rect.w, self.m_rect.h = t_texture.contents.w, t_texture.contents.h
-        
+    
     def setRenderer(self, t_pRenderer):
         self.m_renderTarget = t_pRenderer
     
@@ -273,8 +258,11 @@ class Sprite(SpriteBehaviour, object):
     @depth.setter
     def depth(self, d):
         self.m_depth = d
+    
+    def setDepth(self, d):
+        self.depth = d
         return self
-        
+    
     # Called by handleEvent thread.
     def handleEvent(self, e):
         pass
@@ -286,33 +274,30 @@ class Sprite(SpriteBehaviour, object):
     # Used by user to Draw sprite onto a surface.
     def draw(self, t_surface):
         if (not self.m_visible): return
-        if (SDL_BlitSurface(self.m_spriteSurface, None, self.t_surface, self.m_rect) < 0):
+        
+        if self.buffer_flag == True:
+            self.buffer_flag = False
+            self.updateSurfBuffer()
+            print("Updating Surf Buffer")
+            
+        if (SDL_BlitSurface(self.m_spriteSurface, None, t_surface, self.m_rect) < 0):
             print(SDL_GetError())
-    
+        
     # Called by render Thread when sprite is visible.
     def render(self):
         if (not self.m_visible): return
         
-        if self.m_dirty:# FIXME: FIND this ones purpose
-            self.m_dirty = False
-#        if t_texture:
-#            SDL_SetRenderTarget( self.m_cRenderer, t_texture )
-#            SDL_RenderCopy(self.m_cRenderer, self.m_spriteTexture, NULL, ctypes.byref(self.m_rect))
-#            SDL_SetRenderTarget( self.m_cRenderer, NULL )
-        #if self.m_dirty:    # If the sprite needs to be redrawn?
-        #    self.m_dirty = False;
-        #    self.generateButtonSprite()
-        
-        if self.buffer_flag:# If some changes were done using SetSurfaces or AddSurfaces.
+        if self.self.buffer_flag == True:
             self.buffer_flag = False
-            self.updateTextures()
+            # TODO: Do something here
         
         if (SDL_RenderCopy(self.m_renderTarget, self.m_spriteTexture, None, self.m_rect)<0):
             print(SDL_GetError())
-            
+        
+    # Defining Event methods.
     def onDummy(self, *params):
         pass
-    
+        
     def onClicked(self):
         self.callbacks["onClicked"](*self.m_params["onClicked"])
         
@@ -331,9 +316,10 @@ class Sprite(SpriteBehaviour, object):
     def onEnter(self):
         self.m_callbacks["onEnter"](*self.m_params["onEnter"])
         print("ENtered")
+        
     def onLeave(self):
         self.m_callbacks["onLeave"](*self.m_params["onLeave"])
-    
+        
 class SpriteGroup():
     def __init__(self):
         self.m_container = list()
@@ -459,16 +445,3 @@ class SpriteHandler(SpriteGroup):
             pass
         
         self.m_containerLock.unlock();
-
-        
-
-        
-class SpriteFactory():
-    def __init__(self, t_window):
-        self.window = t_window
-        self.default_args = list()
-        
-    def create_sprite(self):
-        pass
-    
-    
