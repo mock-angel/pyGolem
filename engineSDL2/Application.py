@@ -82,7 +82,7 @@ class Application():
                     
                 win.handleEvent(e);
                 self.handleSpriteEvent(win, e)
-                
+                #win.scene.handleEvent(e)
             else:
                 print("eventThread: Event does not belong to any existing window");
             
@@ -99,15 +99,23 @@ class Application():
         if e.type == SDL_MOUSEMOTION:
             sprites = w.sprites();
             for spr in sprites:
-                if spr.m_mouseOver:
-                    if w.m_mouse.isCollided(spr.m_rect): spr.onHover()
+                if (spr.m_mouseOver): # If entered before.
+                    # event is onHover() if mouse still inside rectangle.
+                    if ( w.m_mouse.isCollided(spr.m_rect) ):
+                        if spr.m_pressed: spr.onPressed()# call onDrag from here.
+                        else: spr.onHover()
                     else:
+                        # NOTE: spr.m_pressed should not be changed if you
+                        # intend to let the user perform the 
+                        spr.m_pressed = False 
+                        
                         spr.m_mouseOver = False
                         spr.onLeave()
-                else:
-                    if w.m_mouse.isCollided(spr.m_rect):
-                        spr.m_mouseOver = True
-                        spr.onEnter()
+                    
+                elif ( w.m_mouse.isCollided(spr.m_rect) ):
+                    # "onEnter" if first collided.
+                    spr.m_mouseOver = True
+                    spr.onEnter()
             #print("Mouvement to {}, {}".format(w.m_mouse.x, w.m_mouse.y))
             return
             
@@ -117,9 +125,10 @@ class Application():
                 #LMB clicked.
                 for spr in sprites:
                     if spr.m_mouseOver:
-                        if w.m_mouse.isCollided(spr.m_rect): spr.onHover()
-                        else:
+                        #if w.m_mouse.isCollided(spr.m_rect): spr.onHover()
+                        #else:
                             spr.m_pressed = True
+                            spr.onDrop()
                             spr.onPressed()
             return
             
@@ -130,8 +139,11 @@ class Application():
                     if ( spr.m_pressed ):
                         if ( w.m_mouse.isCollided(spr.m_rect) ):
                             spr.m_pressed = False
-                            spr.onClicked()  # TODO: refer order from python.
                             spr.onReleased()
+                            spr.onClicked()
+                            spr.onLift()# Simulates onClicked here.
+                            # TODO: Create option to set onClicked before onLift
+                            # or before onDrop() calls.
             return
             
         if e.type == SDL_KEYDOWN:

@@ -194,8 +194,6 @@ class Window( WindowBackground, object ):
     def load(self):
         pass
 
-
-
     def handleEvent(self, e):
         if( e.type == SDL_WINDOWEVENT ):
             if e.window.event == SDL_WINDOWEVENT_SHOWN:

@@ -200,6 +200,8 @@ class Sprite(SpriteBehaviour, object):
             "onHover": self.onDummy,
             "onEnter": self.onDummy,
             "onLeave": self.onDummy,
+            "onDrop": self.onDummy,
+            "onLift": self.onDummy,
         }
         
         params = list()
@@ -211,6 +213,8 @@ class Sprite(SpriteBehaviour, object):
             "onHover": params,
             "onEnter": params,
             "onLeave": params,
+            "onDrop": params,
+            "onLift": params,
         }
         # TODO: Implement background blitting first.
         # variable to enable background blitting of sprite maybe?.
@@ -298,27 +302,41 @@ class Sprite(SpriteBehaviour, object):
     def onDummy(self, *params):
         pass
         
-    def onClicked(self):
-        self.callbacks["onClicked"](*self.m_params["onClicked"])
+    def onPressed(self):
+        self.m_callbacks["onPressed"](*self.m_params["onPressed"])
+        print("onPressed")
         
     def onReleased(self):
         self.m_callbacks["onReleased"](*self.m_params["clicked"])
-    
-    def onPressed(self):
-        self.m_callbacks["onPressed"](*self.m_params["onPressed"])
-    
+        print("onReleased")
+        
+    def onClicked(self):
+        self.callbacks["onClicked"](*self.m_params["onClicked"])
+        print("onClicked")
+        
     def onRightClicked(self):
         self.m_callbacks["onRightClicked"](*self.m_params["onRightClicked"])
-    
+        print("onRightClicked")
+        
     def onHover(self):
         self.m_callbacks["onHover"](*self.m_params["onHover"])
-    
+        print("onHover")
+        
     def onEnter(self):
         self.m_callbacks["onEnter"](*self.m_params["onEnter"])
-        print("ENtered")
+        print("onEnter")
         
     def onLeave(self):
         self.m_callbacks["onLeave"](*self.m_params["onLeave"])
+        print("onLeave")
+        
+    def onDrop(self):
+        self.m_callbacks["onDrop"](*self.m_params["onDrop"])
+        print("onDrop")
+        
+    def onLift(self):
+        self.m_callbacks["onLift"](*self.m_params["onLift"])
+        print("onLift")
         
 class SpriteGroup():
     def __init__(self):
@@ -390,7 +408,7 @@ class SpriteHandler(SpriteGroup):
         return self.m_window
     
     def handleEvent(self, e):
-        self.m_containerLock.lock();
+        self.m_containerLock.acquire();
         
         sprites = self.sprites()
         
@@ -398,18 +416,21 @@ class SpriteHandler(SpriteGroup):
             
             for spr in sprites:
                 
-                if (spr.m_mouseOver): # if entered before
+                if (spr.m_mouseOver): # If entered before.
+                    # event is onHover() if mouse still inside rectangle.
                     if ( self.m_window.m_mouse.isCollided(spr.m_rect) ):
-                        spr.onHover()
+                        if spr.m_pressed: spr.onPressed()# call onDrag from here.
+                        else: spr.onHover()
                     else:
-                    
                         spr.m_mouseOver = False
                         spr.onLeave()
                     
                 elif ( self.m_window.m_mouse.isCollided(spr.m_rect) ):
-                        spr.m_mouseOver = True
-                        spr.onEnter()
-                        
+                    # "onEnter" if first collided.
+                    spr.m_mouseOver = True
+                    spr.onEnter()
+            return
+            
         if e.type == SDL_MOUSEBUTTONDOWN:
 
             if (e.button.button == SDL_BUTTON_LEFT):
@@ -420,11 +441,11 @@ class SpriteHandler(SpriteGroup):
                         spr.onPressed()
                     #temp->onClicked();
             
-            if (e.button.button == SDL_BUTTON_RIGHT):
-                for spr in sprites:
-                    if ( self.m_window.m_mouse.isCollided(spr.m_rect) ):
-                        spr.m_pressed = True
-                        spr.onRightClicked()
+#            if (e.button.button == SDL_BUTTON_RIGHT):
+#                for spr in sprites:
+#                    if ( self.m_window.m_mouse.isCollided(spr.m_rect) ):
+#                        spr.m_pressed = True
+#                        spr.onRightClicked()
             
         if e.type == SDL_MOUSEBUTTONUP:
 

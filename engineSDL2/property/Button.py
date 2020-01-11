@@ -94,7 +94,6 @@ class ButtonBehaviour(property.SpriteBehaviour):
         if renderState == ButtonBehaviour.SPRITE_PRESSED:
             self.GetSurface("sprite_pressed")
             if (self.reqSurface != None): self.m_spriteSurface = self.reqSurface
-            print ("pressed!!")
             self.reqSurface == None
             return
             
@@ -153,12 +152,18 @@ class ButtonBehaviour(property.SpriteBehaviour):
         print("onPressed")
         if (self.m_disabled): return
         
+        self.m_callbacks["onPressed"](self.m_params["onPressed"])
+        
+    def onDrop(self):
+        print("onDrop")
+        if (self.m_disabled): return
+        
         self.m_surfaceLock.acquire();
         self.renderState = ButtonBehaviour.SPRITE_PRESSED;
         self.buffer_flag = True;
         self.m_surfaceLock.release();
         
-        self.m_callbacks["onPressed"](self.m_params["onPressed"])
+        self.m_callbacks["onDrop"](self.m_params["onDrop"])
         
     def onRightClicked(self):
         print("onRightClicked")

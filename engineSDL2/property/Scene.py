@@ -4,7 +4,7 @@ import threading
 import Golem
 import property
 
-class Scene(property.SpriteHandler):
+class Scene(property.SpriteGroup):
     def __init__(self):
         property.SpriteGroup.__init__(self)
         self.sceneId = 0
