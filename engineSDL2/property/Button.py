@@ -96,13 +96,14 @@ class ButtonBehaviour(property.SpriteBehaviour):
             if (self.reqSurface != None): self.m_spriteSurface = self.reqSurface
             self.reqSurface == None
             return
-            
+        if self.m_spriteSurface:
+            self.m_rect.w, self.m_rect.h = self.m_spriteSurface.contents.w, self.m_spriteSurface.contents.h
     def updateBuffer(self):
         # TODO: BROKEN IMPLETENTATION RIGHT NOW!!
         # Please get back to this and change name of method when adding textures.
         
         Golem.property.SpriteBehaviour.updateBuffer(self)
-        print("updateBuffer")
+#        print("updateBuffer")
         self.GetSurface("sprite_over")
         if (self.reqSurface != None):
             createdTexture = SDL_CreateTextureFromSurface( self.m_renderTarget, self.reqSurface)
@@ -133,12 +134,12 @@ class ButtonBehaviour(property.SpriteBehaviour):
             return
     
     def onClicked(self):
-        print("onClicked")
+#        print("onClicked")
         if (self.m_disabled): return
         self.m_callbacks["onClicked"](self.m_params["onClicked"])
         
     def onReleased(self):
-        print("onReleased")
+#        print("onReleased")
         if (self.m_disabled): return
         
         self.m_surfaceLock.acquire();
@@ -149,13 +150,13 @@ class ButtonBehaviour(property.SpriteBehaviour):
         self.m_callbacks["onReleased"](self.m_params["onReleased"])
         
     def onPressed(self):
-        print("onPressed")
+#        print("onPressed")
         if (self.m_disabled): return
         
         self.m_callbacks["onPressed"](self.m_params["onPressed"])
         
     def onDrop(self):
-        print("onDrop")
+#        print("onDrop")
         if (self.m_disabled): return
         
         self.m_surfaceLock.acquire();
@@ -166,17 +167,17 @@ class ButtonBehaviour(property.SpriteBehaviour):
         self.m_callbacks["onDrop"](self.m_params["onDrop"])
         
     def onRightClicked(self):
-        print("onRightClicked")
+#        print("onRightClicked")
         if (self.m_disabled): return
         self.m_callbacks["onRightClicked"](self.m_params["onRightClicked"])
         
     def onHover(self):
-        print("onHover")
+#        print("onHover")
         if (self.m_disabled): return
         self.m_callbacks["onHover"](self.m_params["onHover"])
         
     def onEnter(self):
-        print("onEnter")
+#        print("onEnter")
         if (self.m_disabled): return
         
         self.m_surfaceLock.acquire();
@@ -187,7 +188,7 @@ class ButtonBehaviour(property.SpriteBehaviour):
         self.m_callbacks["onEnter"](self.m_params["onEnter"])
         
     def onLeave(self):
-        print("onLeave")
+#        print("onLeave")
         if (self.m_disabled): return
         
         self.m_surfaceLock.acquire();
@@ -209,8 +210,8 @@ class BasicButton(ButtonBehaviour, property.Sprite):
         return self
     
     def setTheme(self, t_theme): # TODO: Make this function invisible?
-        self.m_theme = t_theme
-        self.enscribeTheme(("sprite", "sprite_over", "sprite_pressed", "sprite_disabled"), t_theme)
+        self.theme = t_theme
+        #self.enscribeTheme(t_theme)
         return self
     
 class Button(BasicButton):

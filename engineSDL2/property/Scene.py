@@ -5,10 +5,11 @@ import Golem
 import property
 
 class Scene(property.SpriteGroup):
-    def __init__(self):
+    def __init__(self, t_window):
         property.SpriteGroup.__init__(self)
         self.sceneId = 0
         self.sceneName = ""
+        self.window = t_window
         
     def setSceneName(self, name):
         self.sceneName = name
@@ -19,9 +20,12 @@ class Scene(property.SpriteGroup):
         return self
         
 class SceneHandler():
-    def __init__(self, default_scene = None):
+    def __init__(self, t_window, default_scene = None):
+    
+        self.window = t_window
+        
         self.m_scenes = {
-            0: default_scene if default_scene else Scene(),
+            0: default_scene if default_scene else Scene(self.window),
         }
         
         self.currentSceneId = 0
@@ -36,8 +40,8 @@ class SceneHandler():
     def __del__(self):
         pass
         
-    def add(self, spr):
-        self.m_currentScene.add(spr)
+#    def add(self, spr):
+#        self.m_currentScene.add(spr)
         
     def remove(self, spr):
         if self.m_currentScene.contains(spr):
@@ -68,7 +72,7 @@ class SceneHandler():
     def add(self, t_sprite):
         if self.m_currentScene: self.m_currentScene.add(t_sprite)
     
-    def addT0(self, spr, scene_number):
+    def addTo(self, spr, scene_number):
         
         self.m_scenes[scene_number].add(spr)
         
@@ -84,12 +88,21 @@ class SceneHandler():
         self.sceneUpdateLock.release()
         
     def createScene(self, sceneClass = Scene):
-        
-        
+        i = -1
         if self.nextId not in self.m_scenes:
-            self.sceneLock.acquire()
-            self.m_scenes[self.nextId] = Scene()
-            self.sceneLock.release()
+            #self.sceneLock.acquire()
+            self.sceneRenderLock.acquire()
+            self.sceneDrawLock.acquire()
+            self.sceneUpdateLock.acquire()
+            self.m_scenes[self.nextId] = sceneClass(self.window)
+            self.nextId +=1 # Need not be under lock protect.
+            i = self.nextId - 1
+            #self.sceneLock.release()
+            self.sceneUpdateLock.release()
+            self.sceneDrawLock.release()
+            self.sceneRenderLock.release()
+            
+        return i
         
     def switchScene(self, sceneId):
         if self.currentSceneId == sceneId or sceneId not in self.m_scenes:

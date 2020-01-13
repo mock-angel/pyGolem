@@ -138,7 +138,7 @@ class Window( WindowBackground, object ):
         self.screen = None      # FIXME:Depreciated!
 
         self.m_window = None
-        self.scene = Golem.property.SceneHandler()
+        self.scene = Golem.property.SceneHandler(self)
 
 
         #Make this work!!!
@@ -386,7 +386,8 @@ class Window( WindowBackground, object ):
     @size.setter
     def size(self, t_size):
         self.m_size = t_size
-
+        self.m_width = t_size[0]
+        self.m_height = t_size[1]
     # Mutators  IMPORTANT
     def hide(self):
         """Hides the window and makes it disappear."""

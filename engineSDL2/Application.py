@@ -28,8 +28,9 @@ class Application():
     def __del__(self):
         SDL_Quit()
     
-    def createNewWindow(self, title = "", window = None):
+    def createNewWindow(self, title = "", window = None, size = (592, 460)):
         new_window = Golem.Window() if not window else window()
+        new_window.size = size
         new_window.init()
         self.m_windowsMap[new_window.getWindowId()] = new_window
         

@@ -98,11 +98,12 @@ class SpriteBehaviour(object):
         self.selectedSurface = self.m_sprSurfaces[string]
         self.m_surfaceLock.release()
     
-    def enscribeTheme(self, keyList, t_theme):
-        for key in keyList:
-            if key in t_theme:
+    def enscribeTheme(self, t_theme, keyList = None):
+        # Call this inside draw function cuz this will hold up code.
+        for key in t_theme:
+            if (not keyList) or (key in keyList):
                 self.SetSurface(key, t_theme[key])
-    
+                #print("ddd")
     def updateSurfBuffer(self):
         # TODO: FIXME: THIS has problems.
         
@@ -110,8 +111,9 @@ class SpriteBehaviour(object):
         
         if renderState == SpriteBehaviour.SPRITE_DEFAULT:
             self.GetSurface("sprite")
-            if (self.reqSurface != None): self.m_spriteSurface = self.reqSurface;
-            
+            if (self.reqSurface != None): 
+                self.m_spriteSurface = self.reqSurface;
+                
             self.reqSurface == None
             return
             
@@ -123,6 +125,12 @@ class SpriteBehaviour(object):
             return
         
         self.reqSurface == None
+        
+        if self.m_spriteSurface:
+            self.m_rect.w, self.m_rect.h = self.m_spriteSurface.contents.w, self.m_spriteSurface.contents.h
+    
+    def force_apply(self):
+        self.updateSurfBuffer()
         
 class Sprite(SpriteBehaviour, object):
     """
@@ -183,6 +191,8 @@ class Sprite(SpriteBehaviour, object):
         self.surface_buffer = True;
         self.texture_buffer = True;
         
+        self.m_theme = None
+        
         # None if using surfaces only mode.
         self.m_renderTarget = t_window.getRenderer() if t_window else None
         if not self.m_renderTarget:
@@ -223,15 +233,14 @@ class Sprite(SpriteBehaviour, object):
         m_visible = bool(boolean)
         return self
     
-    def disable(self):
-        self.m_disabled = True
-        return self
-    
-    def enable(self):
-        self.m_disabled = False
-    
     def isDisabled(self):
         return m_disabled
+    
+    def hide(self):
+        self.m_visible = False
+    
+    def show(self):
+        self.m_visible = True
     
     def getRenderer(self):
         return self.m_renderTarget
@@ -262,7 +271,17 @@ class Sprite(SpriteBehaviour, object):
     @depth.setter
     def depth(self, d):
         self.m_depth = d
+        
+    @property
+    def theme(self):
+        return self.m_theme
     
+    @theme.setter
+    def theme(self, t_theme):
+        self.m_theme = t_theme
+        self.enscribeTheme(t_theme)
+        self.buffer_flag = True
+        
     def setDepth(self, d):
         self.depth = d
         return self
@@ -282,7 +301,7 @@ class Sprite(SpriteBehaviour, object):
         if self.buffer_flag == True:
             self.buffer_flag = False
             self.updateSurfBuffer()
-            print("Updating Surf Buffer")
+#            print("Updating Surf Buffer")
             
         if (SDL_BlitSurface(self.m_spriteSurface, None, t_surface, self.m_rect) < 0):
             print(SDL_GetError())
@@ -291,7 +310,7 @@ class Sprite(SpriteBehaviour, object):
     def render(self):
         if (not self.m_visible): return
         
-        if self.self.buffer_flag == True:
+        if self.buffer_flag == True:
             self.buffer_flag = False
             # TODO: Do something here
         
