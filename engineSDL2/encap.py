@@ -1,9 +1,11 @@
 import time as t
 
-#import Golem
 from sdl2 import *
 import sdl2
 import sdl2.sdlimage
+
+import Golem
+
 class time():
     class Clock():
         def __init__(self):
@@ -58,7 +60,9 @@ def loadSurfaceOptimised(windowSurface, path):
             
         #Get rid of old loaded surface
         SDL_FreeSurface( loadedSurface );
-
+    
+    Golem.Surface.wrap(newSurface)
+    
     return optimizedSurface;
     
     
@@ -72,6 +76,11 @@ def loadSurface(path):
     #exit()
     if loadedSurface == None :
         print ("Unable to load surface from path :", bpath)
+    
+    else:
+        loadedSurface
+        
+    Golem.Surface.wrap(newSurface)
     
     return loadedSurface
     
@@ -91,7 +100,9 @@ def loadTexture(t_renderer, path):
             print("Unable to create texture from {}! SDL Error: {}".format(bpath.c_str(), SDL_GetError()) )
             
         SDL_FreeSurface( loadedSurface )
-        
+    
+    #Golem.Texture.wrap(newSurface)
+    
     return newTexture
 
 def create_new_surface(size = (1, 1), name = None, color = (189, 189, 189)):# TODO: Change default args.
@@ -118,7 +129,26 @@ def create_new_surface(size = (1, 1), name = None, color = (189, 189, 189)):# TO
     #SDL_FillRect(newSurface, 0, color);
     print(SDL_MapRGB(newSurface.contents.format , color[0], color[1], color[2]))
     SDL_FillRect(newSurface, None, SDL_MapRGB(newSurface.contents.format , color[0], color[1], color[2]));
+    
+    # THis is where we bind to a golemsurface.
+    Golem.Surface.wrap(newSurface)
+    
     return newSurface
 
-
-        
+#def SDL_ScaleSurface(surface, width, height):
+#    #SDL_ScaleSurface(surface, width, height);
+#    if(!Surface || !Width || !Height)
+#        return 0;
+#    
+#    _ret = SDL_CreateRGBSurface(surface.contents.flags, width, height, surface.contents.format.BitsPerPixel,
+#        contents.format.Rmask, contents.format.Gmask, contents.format.Bmask, contents.format.Amask);
+#        
+#    _stretch_factor_x = (static_cast<double>(Width)  / static_cast<double>(Surface->w)),
+#        _stretch_factor_y = (static_cast<double>(Height) / static_cast<double>(Surface->h));
+    
+#    for(Sint32 y = 0; y < Surface->h; y++) //Run across all Y pixels.
+#        for(Sint32 x = 0; x < Surface->w; x++) //Run across all X pixels.
+#            for(Sint32 o_y = 0; o_y < _stretch_factor_y; ++o_y) //Draw _stretch_factor_y pixels for each Y pixel.
+#                for(Sint32 o_x = 0; o_x < _stretch_factor_x; ++o_x) //Draw _stretch_factor_x pixels for each X pixel.
+#                    DrawPixel(_ret, static_cast<Sint32>(_stretch_factor_x * x) + o_x, 
+#                        static_cast<Sint32>(_stretch_factor_y * y) + o_y, ReadPixel(Surface, x, y));

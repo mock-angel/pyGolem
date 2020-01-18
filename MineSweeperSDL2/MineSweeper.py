@@ -3,23 +3,23 @@ import sdl2
 import sdl2.ext as sdl2ext
 
 import Golem
-
+from Tile import GameScene
 #RESOURCES = sdl2ext.Resources(__file__, "resources")
 
-class GameScene(Golem.property.Scene):
-    def __init__(self, t_window):
-        Golem.property.Scene.__init__(self, t_window)
-        
-        self.setSceneName = "Gamr Page - Play!"
-        default = Golem.create_new_surface(size = (152, 62), name = "sprite", color = (50, 5, 5))
-        hover = Golem.create_new_surface(size = (152, 62), name = "sprite", color = (50, 200, 5))
-        pressed = Golem.create_new_surface(size = (152, 62), name = "sprite", color = (200, 5, 5))
-        self.bt_theme = bt_theme = Golem.property.create_button_theme(default, hover, pressed)
-        
-        sp = Golem.property.BasicButton(self.window)
-        sp.theme = bt_theme
-        self.add(sp)
-        sp.m_rect.center = 100, 100
+#class GameScene(Golem.property.Scene):
+#    def __init__(self, t_window):
+#        Golem.property.Scene.__init__(self, t_window)
+#        
+#        self.setSceneName = "Gamr Page - Play!"
+#        default = Golem.create_new_surface(size = (152, 62), name = "sprite", color = (50, 5, 5))
+#        hover = Golem.create_new_surface(size = (152, 62), name = "sprite", color = (50, 200, 5))
+#        pressed = Golem.create_new_surface(size = (152, 62), name = "sprite", color = (200, 5, 5))
+#        self.bt_theme = bt_theme = Golem.property.create_button_theme(default, hover, pressed)
+#        
+#        sp = Golem.property.BasicButton(self.window)
+#        sp.theme = bt_theme
+#        self.add(sp)
+#        sp.m_rect.center = 100, 100
 
 class MainScene(Golem.property.Scene):
     def __init__(self, t_window):
@@ -93,10 +93,10 @@ class MineWindow(Golem.Window):
         #self.scene.switchScene(i_d_main)
         #self.scene.switchScene(i_d)
         
-    def create_tiles(self):
-        
-        grp = Golem.SpriteGroup()
-        for r in range(self.rows):
-            for c in range(self.columns):
-                tile = Tile(r, c)
-                grp.add(tile)
+#    def create_tiles(self):
+#        
+#        grp = Golem.SpriteGroup()
+#        for r in range(self.rows):
+#            for c in range(self.columns):
+#                tile = Tile(r, c)
+#                grp.add(tile)

@@ -227,3 +227,8 @@ class Button(BasicButton):
     def setText(self, t_text):
         self.m_text = t_text
         return self
+
+class ButtonGroup(property.SpriteGroup):
+    def __init__(self):
+        property.SpriteGroup.__init__(self)
+        pass
