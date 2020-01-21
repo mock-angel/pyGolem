@@ -49,7 +49,7 @@ class MainScene(Golem.property.Scene):
         self.add(bt_16x16)
         self.add(bt_30x16)
         self.add(bt_custom)
-    
+        
     def make_selection_button(self, cell_xy, theme, callback, params):
         cell_x, cell_y = cell_xy
         cx = self.window.size[0]/2 + cell_x * (self.scale_size[0]/2 + 9)
@@ -66,6 +66,9 @@ class MineWindow(Golem.Window):
     def __init__(self, *t_):
         Golem.Window.__init__(self, *t_)
         self.s = 0
+        
+        self.mode = "RENDER"
+        
         #self.load()
     def load(self):
         

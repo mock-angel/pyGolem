@@ -128,7 +128,11 @@ class SpriteBehaviour(object):
         
         if self.m_spriteSurface:
             self.m_rect.w, self.m_rect.h = self.m_spriteSurface.contents.w, self.m_spriteSurface.contents.h
-    
+        
+    def updateRenderBuffer(self):
+        self.updateSurfBuffer()
+        self.m_spriteTexture = self.m_spriteSurface.getTexture(self.m_renderTarget);
+        
     def force_apply(self):
         self.updateSurfBuffer()
         
@@ -313,7 +317,9 @@ class Sprite(SpriteBehaviour, object):
         if self.buffer_flag == True:
             self.buffer_flag = False
             # TODO: Do something here
-        
+            
+            self.updateRenderBuffer()
+            
         if (SDL_RenderCopy(self.m_renderTarget, self.m_spriteTexture, None, self.m_rect)<0):
             print(SDL_GetError())
         

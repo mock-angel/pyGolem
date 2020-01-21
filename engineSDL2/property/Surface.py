@@ -35,6 +35,14 @@ class Surface():
         Surface.init(self)
         Surface.bind(self)
         
+    def getTexture(self, t_renderer):
+        newTexture = SDL_CreateTextureFromSurface( t_renderer, self )
+        
+        if not newTexture:
+            print("Unable to create texture from {}! SDL Error: {}".format(bpath.c_str(), SDL_GetError()) )
+        
+        return newTexture
+        
     def init(self):
         # This is where the texture of the surface sits.
         self.pairedTexture = None
@@ -44,6 +52,10 @@ class Surface():
         
         # THis is where the SDL_Surface sits.
         self.SDLSurface = None
+        
+        # apply() will update the buffer.
+        self.bufferTexture = None
+        
         #Surface.bind(self)
         
     def bind(self, external = None):
@@ -51,6 +63,7 @@ class Surface():
         
         bind(self, Surface.blit)
         bind(self, Surface.get_rect)
+        bind(self, Surface.getTexture)
         
     def blit(self, surface):
         pass
