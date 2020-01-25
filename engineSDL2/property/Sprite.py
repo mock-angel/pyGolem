@@ -130,13 +130,38 @@ class SpriteBehaviour(object):
             self.m_rect.w, self.m_rect.h = self.m_spriteSurface.contents.w, self.m_spriteSurface.contents.h
         
     def updateRenderBuffer(self):
+        # TODO: Check if locks r required
         self.updateSurfBuffer()
-        self.m_spriteTexture = self.m_spriteSurface.getTexture(self.m_renderTarget);
-        
+        if self.m_spriteSurface:
+            self.m_spriteTexture = self.m_spriteSurface.getTexture(self.m_renderTarget);
+        else:
+            print ("Texture cant be created: Got null surface.")
+            
     def force_apply(self):
         self.updateSurfBuffer()
+
+class SpriteDynamics(object):
+    def __init__(self):
+        self.m_rect = Golem.Rect((0, 0), (1, 1))
+        self.rect = self.m_rect
+    
+    @property
+    def x(self):
+        return self.rect.x
         
-class Sprite(SpriteBehaviour, object):
+    @x.setter
+    def x(self, x_val):
+        self.rect.x = val
+    
+    @property
+    def y(self):
+        return self.rect.y
+        
+    @x.setter
+    def y(self, y_val):
+        self.rect.y = val
+    
+class Sprite(SpriteBehaviour, SpriteDynamics, object):
     """
     Attributes
     ----------
@@ -177,6 +202,7 @@ class Sprite(SpriteBehaviour, object):
     
     def __init__(self, t_window):
         SpriteBehaviour.__init__(self)
+        SpriteDynamics.__init__(self)
         
         Sprite.RECENTWINDOW = t_window
         
@@ -202,9 +228,6 @@ class Sprite(SpriteBehaviour, object):
         if not self.m_renderTarget:
             print("Sprite.__init__(self): created without any renderTarget.")
             #Golem.log_error("Sprite.__init__(self): created without any renderTarget.")
-        
-        self.m_rect = Golem.Rect((0, 0), (1, 1))
-        self.rect = self.m_rect
         
         self.m_callbacks = {
             "onClicked": self.onDummy,
