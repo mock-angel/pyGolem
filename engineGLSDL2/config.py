@@ -1,7 +1,7 @@
 # config.py   -previously constants.py
 SCREEN_TITLE = "MineSweeper"
 #SCREEN_ICON = "icon.png"
-SCREEN_SIZE = (470, 470)
+SCREEN_SIZE = (800, 600)
 SCREEN_COLOR = (206, 206, 206)
 UPDATE_FPS = 0
 GRAPHICS_FPS = 0

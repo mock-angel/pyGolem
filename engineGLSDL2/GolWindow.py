@@ -6,6 +6,10 @@ import time
 
 
 import Golem
+import OpenGL.GL as GL
+import OpenGL.GLU as GLU
+from OpenGL.arrays import vbo
+from OpenGL.GL import *
 
 class ColorRGBA(object):
     def __init__(self, r = 0, g = 0, b = 0, a = 0):
@@ -27,7 +31,7 @@ class WindowBackground(object):
     def setBackgroundColor(self, t_r = 0, t_g = 0, t_b = 0, t_a = 0):
         self.m_bgColor = t_bgColor = ColorRGBA(t_r, t_g, t_b, t_a)
 #        SDL_SetRenderDrawColor( self.m_renderer, t_bgColor.r, t_bgColor.g, t_bgColor.b, t_bgColor.a )
-
+        
         return self
 
 class Window( WindowBackground, object ):
@@ -92,9 +96,10 @@ class Window( WindowBackground, object ):
 
     DEFAULTPOS = SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED
     DEFAULTWINDOWFLAGS = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
-    DEFAULTRENDERFLAGS = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_WINDOW_OPENGL
+    #DEFAULTRENDERFLAGS = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | 
+    DEFAULTRENDERFLAGS = SDL_WINDOW_OPENGL
     """Used by user to handle and do stuff"""
-    def __init__(self, title = bytes(b"Hello"), width = 592, height = 460):
+    def __init__(self, title = bytes(b"Hello"), width = 800, height = 600):
         WindowBackground.__init__(self)
         self.m_title = title
         self.m_windowId = 0
@@ -139,24 +144,44 @@ class Window( WindowBackground, object ):
         self.screenSurface = None
 
     def __del__(self):
+        #SDL_GL_DeleteContext(self.context)
         SDL_DestroyRenderer(self.m_renderer)
         SDL_DestroyWindow(self.m_window)
         print("~Deleted Window")
 
     def init(self):
         #os.environ['SDL_VIDEO_CENTERED'] = '1'
-
-        self.m_window = m_window = SDL_CreateWindow(self.m_title,
+        
+        if SDL_Init(SDL_INIT_VIDEO) != 0:
+            print(SDL_GetError())
+            return -1
+        
+        self.m_window = m_window = window = SDL_CreateWindow(self.m_title,
                               self.windowPos[0], self.windowPos[1],
-                              self.m_width, self.m_height, self.m_windowFlags)
+                              self.m_width, self.m_height, SDL_WINDOW_OPENGL)
+
+        if SDL_Init(SDL_INIT_VIDEO) != 0:
+            print(SDL_GetError())
+            return -1
+
+#        self.m_window = m_window = window = SDL_CreateWindow(b"OpenGL demo",
+#                                   SDL_WINDOWPOS_UNDEFINED,
+#                                   SDL_WINDOWPOS_UNDEFINED, 800, 600,
+#                                   SDL_WINDOW_OPENGL)
+        
         SDL_HideWindow(m_window)
+        #self.context = SDL_GL_CreateContext(window)
         
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3)
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3)
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-                                            SDL_GL_CONTEXT_PROFILE_CORE)
+        #SDL_GetVideoInfo( )
         
-        self.context = SDL_GL_CreateContext(m_window)
+#        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3)
+#        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3)
+#        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+#                                            SDL_GL_CONTEXT_PROFILE_CORE)
+        
+        
+        
+        self.context = None
         
         # -- SEt hit test rects here.
         if( m_window != 0 ):
@@ -173,10 +198,10 @@ class Window( WindowBackground, object ):
                 self.screenSurface = SDL_GetWindowSurface( m_window );
         
             elif self.mode == "OPENGL":
-                pass
-            
-                #if self.screenSurface == None:
-                 #   print(SDL_GetError())
+                self.context = SDL_GL_CreateContext(m_window)
+                # SETUP
+                print("setup completed")
+                
             self.m_windowId = SDL_GetWindowID( m_window )
             self.m_shown = True;
             SDL_ShowWindow(m_window);
@@ -185,16 +210,17 @@ class Window( WindowBackground, object ):
 
         self.m_windowSurface = SDL_GetWindowSurface(m_window)
 
-        #self.sp = Golem.property.BasicButton(self)
-        #self.scene.add(self.sp)
-
-        #theme = Golem.property.ButtonThemeFactory.genTheme(Golem.loadSurface("golem.png"), Golem.loadSurface("g1.png"))
-        #self.sp.setTheme(theme)
         self.load()
 
     def load(self):
         pass
-
+    
+    def glsetup(self):
+        self.context = SDL_GL_CreateContext(self.m_window)
+        GL.glMatrixMode(GL.GL_PROJECTION | GL.GL_MODELVIEW)
+        GL.glLoadIdentity()
+        GL.glOrtho(-400, 400, 300, -300, 0, 1)
+    
     def handleEvent(self, e):
         if( e.type == SDL_WINDOWEVENT ):
             if e.window.event == SDL_WINDOWEVENT_SHOWN:
@@ -277,20 +303,23 @@ class Window( WindowBackground, object ):
 
     def update(self):
         """The application calls this in a thread in a loop."""
-        pass
+        time.sleep(0.1)
 
     def render(self):
         if (not self.isMinimized()):
             self.clearRenderer()
 
             self.scene.render();
-            #self.sp.render()
-#            SDL_RenderPresent( self.m_renderer );
-            SDL_GL_SwapWindow(self.m_window)
+            SDL_RenderPresent( self.m_renderer );
+#            SDL_GL_SwapWindow(self.m_window)
             
-        #self.screen.fill(self.screen_color)
-        #self.UpdateEngine.draw(self.screen)
-        #pygame.display.update()
+    def gl_render(self):
+        if (not self.isMinimized()):
+            self.clearGl()
+            SDL_Delay(10)
+            #self.scene.gl_render();
+#            SDL_GL_SwapWindow(self.m_window)
+    
 #    def draw(self,):
 #        if (not self.isMinimized()):
 #            self.clearScreen()
@@ -316,11 +345,17 @@ class Window( WindowBackground, object ):
         print("renderThread:: Started")
         #clock = pygame.time.Clock()
         clock = Golem.time.Clock()
-
+        
+        self.glsetup()
+        
         while not self.isClosed():
             self.renderLock.acquire()
 
-            self.render()
+            if self.mode == "RENDER":
+                self.render()
+            
+            elif self.mode == "OPENGL": 
+                self.gl_render()
 
             self.renderLock.release()
             time.sleep(0)
@@ -345,10 +380,24 @@ class Window( WindowBackground, object ):
         SDL_RenderClear( self.m_renderer )
 
     def clearScreen(self):
-        #SDL_RenderClear( self.m_renderer )
-
         SDL_FillRect(self.screenSurface, None, SDL_MapRGB(self.screenSurface.contents.format, self.m_bgColor.r, self.m_bgColor.g, self.m_bgColor.b))
-
+    
+    def clearGl(self):
+        x, y = 0, 30
+        GL.glClearColor(0, 0, 0, 1)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+        GL.glRotatef(10.0, 0.0, 0.0, 1.0)
+        GL.glBegin(GL.GL_TRIANGLES)
+        GL.glColor3f(1.0, 0.0, 0.0)
+        GL.glVertex2f(x, y + 90.0)
+        GL.glColor3f(0.0, 1.0, 0.0)
+        GL.glVertex2f(x + 90.0, y - 90.0)
+        GL.glColor3f(0.0, 0.0, 1.0)
+        GL.glVertex2f(x - 90.0, y - 90.0)
+        GL.glEnd()
+        print(glGetError())
+        SDL_GL_SwapWindow(self.m_window);
+        SDL_Delay(10)
     # Getters.
     def getWindowId(self):
         return self.m_windowId
