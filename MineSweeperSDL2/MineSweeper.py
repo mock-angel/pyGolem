@@ -22,8 +22,24 @@ from Tile import GameScene
 #        sp.m_rect.center = 100, 100
 
 class MainScene(Golem.property.Scene):
+    """
+        Contains 4 buttons to choose 3 different tilesets.
+        A custom button to create custom game.
+    """
     def __init__(self, t_window):
         Golem.property.Scene.__init__(self, t_window)
+        
+        self.font = Golem.property.Font()
+        self.font.updateFont()
+        
+        self.text  = Golem.property.Text()
+        self.init_buttons()
+        
+    def init_buttons(self):
+        
+        font = self.font
+        text = self.text
+        
         self.scale_size = (186, 186)
         self.setSceneName = "Stating Page - Field Size Selection"
         default = Golem.create_new_surface(size = self.scale_size, name = "sprite", color = (50, 5, 5))
@@ -37,14 +53,17 @@ class MainScene(Golem.property.Scene):
         surf_30x16 = Golem.create_new_surface(size = self.scale_size, name = "sprite", color = (50, 5, 5))
         surf_custom = Golem.create_new_surface(size = self.scale_size, name = "sprite", color = (50, 5, 5))
         
-        
+        text.font = font
+        text.text = b"text"
+        text.draw(default)
         theme = Golem.property.create_button_theme(default, hover, pressed)
+        
         
         bt_8x8 = self.make_selection_button((-1, -1), theme, None, None)
         bt_16x16 = self.make_selection_button((1, -1), theme, None, None)
         bt_30x16 = self.make_selection_button((-1, 1), theme, None, None)
         bt_custom = self.make_selection_button((1, 1), theme, None, None)
-        
+
         self.add(bt_8x8)
         self.add(bt_16x16)
         self.add(bt_30x16)
@@ -93,13 +112,3 @@ class MineWindow(Golem.Window):
         self.scene.switchScene(i_d_game_scene)
         self.scene.addTo(sp, i_d_game_scene)
         self.scene.switchScene(i_d_main)
-        #self.scene.switchScene(i_d_main)
-        #self.scene.switchScene(i_d)
-        
-#    def create_tiles(self):
-#        
-#        grp = Golem.SpriteGroup()
-#        for r in range(self.rows):
-#            for c in range(self.columns):
-#                tile = Tile(r, c)
-#                grp.add(tile)

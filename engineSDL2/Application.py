@@ -3,6 +3,7 @@ import ctypes
 from sdl2 import *
 import sdl2
 import sdl2.ext
+from sdl2.sdlttf import *
 
 from threading import Thread
 
@@ -24,7 +25,7 @@ class Application():
         self.m_threads = []
         
         SDL_Init(SDL_INIT_VIDEO)
-    
+        TTF_Init()
     def __del__(self):
         SDL_Quit()
     
