@@ -77,10 +77,10 @@ def loadSurface(path):
     if loadedSurface == None :
         print ("Unable to load surface from path :", bpath)
     
-    else:
-        loadedSurface
+#    else:
+#        loadedSurface
         
-    Golem.Surface.wrap(newSurface)
+    Golem.Surface.wrap(loadedSurface)
     
     return loadedSurface
     

@@ -25,9 +25,13 @@ def bind(instance, func, as_name=None):
 class Surface():
     def __init__(self, size):
         surf = Golem.create_new_surface(size)
-        surf.__init__(surf)
+#        surf.__init__(surf)
         Surface.wrap(surf)
         self.surf = surf
+        
+#    def __del__(self):
+#        SDL_FreeSurface(self.surf)
+        
     def convert(self):
         return self.surf
         
@@ -65,9 +69,15 @@ class Surface():
         bind(self, Surface.get_rect)
         bind(self, Surface.getTexture)
         
-    def blit(self, surface):
-        pass
+    def blit(self, dest = None, dest_rect = None, source_rect = None):
+        if (SDL_BlitSurface(self, source_rect, dest, dest_rect) < 0):
+            print(SDL_GetError())
     
     def get_rect(self):
         pass
 
+    def copy(self):
+        surf = Golem.create_new_surface(self.contents.w, self.contents.h)
+        self.blit(surf)
+        return surf
+    

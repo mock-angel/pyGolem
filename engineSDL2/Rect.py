@@ -34,6 +34,22 @@ class Rect(SDL_Rect):
     def center(self):
         return self.m_center
     
+    @property
+    def top(self):
+        return self.y
+        
+    @property
+    def left(self):
+        return self.y
+    
+    @top.setter
+    def top(self, t_top):
+        self.y = t_top
+    
+    @top.setter
+    def left(self, t_left):
+        self.x = t_left
+        
     @center.setter
     def center(self, t_cxy):
         (t_cx, t_cy) = t_cxy
@@ -44,7 +60,24 @@ class Rect(SDL_Rect):
         self.y = ctypes.c_int(t_cy - self.h//2);
 #        self.x = t_cx - (self.w//2);
 #        self.y = t_cy - (self.h//2);
-
+    
+    
+    @property
+    def height(self):
+        return self.h
+    
+    @top.setter
+    def height(self, t_height):
+        self.h = t_height
+    
+    @property
+    def width(self):
+        return self.w
+    
+    @top.setter
+    def width(self, t_width):
+        self.w = t_width
+    
     def lock(self):
         pass
         

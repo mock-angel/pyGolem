@@ -25,7 +25,7 @@ class GameScene(Golem.property.Scene):
         self.uncovered_list = Golem.property.ButtonGroup()
 
         p = self.pause_screen = Golem.Surface((1, 1)).convert()
-        p.blit(1)
+#        p.blit(1)
         
         print (self.pause_screen.contents, "hello there.......")
         self.pause_screen_rect = self.pause_screen.get_rect()

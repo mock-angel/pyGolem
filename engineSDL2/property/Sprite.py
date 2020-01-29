@@ -69,7 +69,6 @@ class SpriteBehaviour(object):
             Sets the key value to a passes surface.
         """
         self.m_surfaceLock.acquire()
-        print ("SetSurface :", string)
         #self.buffer_flag = True # TODO: compare with previous implementation.
         if string not in self.m_sprSurfaces:
             self.m_surfaceLock.release()
@@ -135,7 +134,7 @@ class SpriteBehaviour(object):
         if self.m_spriteSurface:
             self.m_spriteTexture = self.m_spriteSurface.getTexture(self.m_renderTarget);
         else:
-            print ("Texture cant be created: Got null surface.")
+            print ("Texture cannot be created: Got null surface.")
             
     def force_apply(self):
         self.updateSurfBuffer()
