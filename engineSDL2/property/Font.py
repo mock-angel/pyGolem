@@ -36,6 +36,14 @@ class Font():
     def strikethrough(self):
         return m_strikethrough
     
+    @property
+    def size(self):
+        return m_size
+    
+    @size.setter
+    def size(self, t_size):
+        self.m_size = t_size
+    
     @bold.setter
     def bold(self, boolean):
         self.m_bold = boolean
@@ -72,8 +80,7 @@ class Font():
             TTF_SetFontStyle(self.m_SDLfont, style)
             
         else:
-            self.m_SDLfont = TTF_OpenFont(b"/home/anantha/Desktop/pyGolem/engineSDL2/fonts/OpenSans-Regular.ttf", 20)
-            print(self.m_SDLfont)
+            self.m_SDLfont = TTF_OpenFont(b"/home/anantha/Desktop/pyGolem/engineSDL2/fonts/OpenSans-Regular.ttf", self.m_size)
 #            if self.m_font:
 #                TTF_SetFontStyle(self.m_font, style)
 #            else:
