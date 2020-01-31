@@ -1,0 +1,56 @@
+{
+    "world":{
+        "title": "Engine",
+        "width" : "40",
+        "height" : 300,
+        "background-color": "None"
+    },
+    
+    "font_res": {
+        "sans": {
+            "regular" : "/home/anantha/Desktop/pyGolem/engineSDL2/fonts/OpenSans-Regular.ttf",
+            "bold" : "/home/anantha/Desktop/pyGolem/engineSDL2/fonts/OpenSans-Regular.ttf",
+            "italic" : "/home/anantha/Desktop/pyGolem/engineSDL2/fonts/OpenSans-Regular.ttf",
+            "bold|italic" : "/home/anantha/Desktop/pyGolem/engineSDL2/fonts/OpenSans-Regular.ttf"
+        },
+        "sans-light": {
+            "regular" : "/home/anantha/Desktop/pyGolem/engineSDL2/fonts/OpenSans-Light.ttf",
+            "bold" : "/home/anantha/Desktop/pyGolem/engineSDL2/fonts/OpenSans-Semibold.ttf",
+            "italic" : "/home/anantha/Desktop/pyGolem/engineSDL2/fonts/OpenSans-LightItalic.ttf",
+            "bold|italic" : "/home/anantha/Desktop/pyGolem/engineSDL2/fonts/OpenSans-SemiboldItalic.ttf"
+        }
+    },
+    
+    "font":{
+        "Sans1":{
+            "font_res" : "sans",
+            "size":  20,
+            "bold" : true,
+            "italic" : false,
+            "strikethrough" : false
+        },
+        "Sans2":{
+            "font_res":"sans-light",
+            "size" : 18,
+            "bold" : false,
+            "italic" : true,
+            "strikethrough" : true
+        }
+    },
+    
+    "theme_res":{
+        "theme1":{
+            "default":"",
+            "hover":"",
+            "disable":""
+        },
+        "theme1":{
+            "default":"",
+            "hover":"",
+            "disable":""
+        }
+    }
+    
+    
+}
+
