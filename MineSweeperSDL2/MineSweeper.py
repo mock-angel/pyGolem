@@ -26,8 +26,8 @@ class MainScene(Golem.property.Scene):
         Contains 4 buttons to choose 3 different tilesets.
         A custom button to create custom game.
     """
-    def __init__(self, t_window):
-        Golem.property.Scene.__init__(self, t_window)
+    def __init__(self, t_window, t_id):
+        Golem.property.Scene.__init__(self, t_window, t_id)
         
         self.font = Golem.property.Font()
         self.font.updateFont()
@@ -105,7 +105,6 @@ class MainScene(Golem.property.Scene):
         
 #        default = text_16x16_surf
         
-        
         text.font = font
         text.text = b"text"
 #        text.draw(default)
@@ -121,7 +120,11 @@ class MainScene(Golem.property.Scene):
         self.add(bt_16x16)
         self.add(bt_30x16)
         self.add(bt_custom)
-    
+        
+        bt_8x8.clicked(self.window.scene.switchScene, 2)
+        bt_16x16.clicked(self.window.scene.switchScene, 2)
+        bt_30x16.clicked(self.window.scene.switchScene, 2)
+        bt_custom.clicked(self.window.scene.switchScene, 2)
     
     
     def make_selection_button(self, cell_xy, theme, callback, params):
@@ -159,9 +162,10 @@ class MineWindow(Golem.Window):
         mine_exploded = Golem.create_new_surface(size = (32,32), name = "sprite_over", color = (215, 5, 5))
         theme = Golem.property.create_button_theme(default_mine, default_hover_mine, default_pressed_mine)
         sp.theme = theme
-        i_d_main = self.scene.createScene(MainScene)
-        i_d_game_scene = self.scene.createScene(GameScene)
+        MAIN_SCENE = self.scene.createScene(MainScene)
+        GAME_SCENE = self.scene.createScene(GameScene)
         
-        self.scene.switchScene(i_d_game_scene)
-        self.scene.addTo(sp, i_d_game_scene)
-        self.scene.switchScene(i_d_main)
+        
+        self.scene.switchScene(GAME_SCENE)
+        self.scene.addTo(sp, GAME_SCENE)
+        self.scene.switchScene(MAIN_SCENE)

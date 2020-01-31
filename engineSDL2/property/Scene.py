@@ -5,9 +5,9 @@ import Golem
 import property
 
 class Scene(property.SpriteGroup):
-    def __init__(self, t_window):
+    def __init__(self, t_window, t_id):
         property.SpriteGroup.__init__(self)
-        self.sceneId = 0
+        self.sceneId = t_id
         self.sceneName = ""
         self.window = t_window
         
@@ -25,7 +25,7 @@ class SceneHandler():
         self.window = t_window
         
         self.m_scenes = {
-            0: default_scene if default_scene else Scene(self.window),
+            0: default_scene if default_scene else Scene(self.window, 0),
         }
         
         self.currentSceneId = 0
@@ -94,7 +94,7 @@ class SceneHandler():
             self.sceneRenderLock.acquire()
             self.sceneDrawLock.acquire()
             self.sceneUpdateLock.acquire()
-            self.m_scenes[self.nextId] = sceneClass(self.window)
+            self.m_scenes[self.nextId] = sceneClass(self.window, self.nextId)
             self.nextId +=1 # Need not be under lock protect.
             i = self.nextId - 1
             #self.sceneLock.release()
