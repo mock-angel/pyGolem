@@ -132,11 +132,17 @@ class ButtonBehaviour(property.SpriteBehaviour):
             if (self.reqTexture != None): self.m_spriteTexture = self.reqTexture;
             SDL_QueryTexture(self.m_spriteTexture, None, None, ctypes.byref(self.m_rect.w), ctypes.byref(self.m_rect.h));
             return
-    
+            
+    #################################################
+    # Calls the callback when events are encountered.
     def onClicked(self):
 #        print("onClicked")
         if (self.m_disabled): return
         self.m_callbacks["onClicked"](self.m_params["onClicked"])
+        
+    def onLift(self):
+        if (self.m_disabled): return
+        self.m_callbacks["onLift"](self.m_params["onLift"])
         
     def onReleased(self):
 #        print("onReleased")
@@ -224,7 +230,7 @@ class Button(BasicButton):
     def __init__(self, t_window):
         BasicButton.__init__(self, t_window)
         
-    def setText(self, t_text):
+    def set_text(self, t_text):
         self.m_text = t_text
         return self
 

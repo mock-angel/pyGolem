@@ -344,11 +344,49 @@ class Sprite(SpriteBehaviour, SpriteDynamics, object):
             
         if (SDL_RenderCopy(self.m_renderTarget, self.m_spriteTexture, None, self.m_rect)<0):
             print(SDL_GetError())
+
+    ##########################################
+    # Sets the callback for particular events.
+    def clicked(self, callback, *params):
+        self.m_callbacks["onClicked"] = callback
+        self.m_params["onClicked"] = params
+    
+    def drop(self, callback, *params):
+        self.m_callbacks["onDrop"] = callback
+        self.m_params["onDrop"] = params
         
+    def right_clicked(self, callback, *params):
+        self.m_callbacks["onRightClicked"] = callback
+        self.m_params["onRightClicked"] = params    
+    
+    def enter(self, callback, *params):
+        self.m_callbacks["onEnter"] = callback
+        self.m_params["onEnter"] = params
+    
+    def hover(self, callback, *params):
+        self.m_callbacks["onHover"] = callback
+        self.m_params["onHover"] = params    
+    
+    def leave(self, callback, *params):
+        self.m_callbacks["onLeave"] = callback
+        self.m_params["onLeave"] = params
+    
+    def released(self, callback, *params):
+        self.m_callbacks["onReleased"] = callback
+        self.m_params["onReleased"] = params
+    
+    def pressed(self, callback, *params):
+        self.m_callbacks["onPressed"] = callback
+        self.m_params["onPressed"] = params
+    
+    def lift(self, callback, *params):
+        self.m_callbacks["onLift"] = callback
+        self.m_params["onLift"] = params
+    
     # Defining Event methods.
     def onDummy(self, *params):
         pass
-        
+    
     def onPressed(self):
         self.m_callbacks["onPressed"](*self.m_params["onPressed"])
         print("onPressed")
