@@ -8,8 +8,8 @@ BLUE_FLAG= 2
 NO_FLAG = 3
 
 class GameScene(Golem.property.Scene):
-    def __init__(self, t_window):
-        Golem.property.Scene.__init__(self, t_window)
+    def __init__(self, t_window, t_id):
+        Golem.property.Scene.__init__(self, t_window, t_id)
         
         self.paused = False
         self.field = MinesField()
