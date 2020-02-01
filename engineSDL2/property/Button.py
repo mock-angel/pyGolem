@@ -103,7 +103,7 @@ class ButtonBehaviour(property.SpriteBehaviour):
         # Please get back to this and change name of method when adding textures.
         
         Golem.property.SpriteBehaviour.updateBuffer(self)
-#        print("updateBuffer")
+        
         self.GetSurface("sprite_over")
         if (self.reqSurface != None):
             createdTexture = SDL_CreateTextureFromSurface( self.m_renderTarget, self.reqSurface)
@@ -138,11 +138,11 @@ class ButtonBehaviour(property.SpriteBehaviour):
     def onClicked(self):
 #        print("onClicked")
         if (self.m_disabled): return
-        self.m_callbacks["onClicked"](self.m_params["onClicked"])
+        self.m_callbacks["onClicked"](*self.m_params["onClicked"])
         
     def onLift(self):
         if (self.m_disabled): return
-        self.m_callbacks["onLift"](self.m_params["onLift"])
+        self.m_callbacks["onLift"](*self.m_params["onLift"])
         
     def onReleased(self):
 #        print("onReleased")
@@ -153,13 +153,13 @@ class ButtonBehaviour(property.SpriteBehaviour):
         self.buffer_flag = True;
         self.m_surfaceLock.release();
         
-        self.m_callbacks["onReleased"](self.m_params["onReleased"])
+        self.m_callbacks["onReleased"](*self.m_params["onReleased"])
         
     def onPressed(self):
 #        print("onPressed")
         if (self.m_disabled): return
         
-        self.m_callbacks["onPressed"](self.m_params["onPressed"])
+        self.m_callbacks["onPressed"](*self.m_params["onPressed"])
         
     def onDrop(self):
 #        print("onDrop")
@@ -170,17 +170,17 @@ class ButtonBehaviour(property.SpriteBehaviour):
         self.buffer_flag = True;
         self.m_surfaceLock.release();
         
-        self.m_callbacks["onDrop"](self.m_params["onDrop"])
+        self.m_callbacks["onDrop"](*self.m_params["onDrop"])
         
     def onRightClicked(self):
 #        print("onRightClicked")
         if (self.m_disabled): return
-        self.m_callbacks["onRightClicked"](self.m_params["onRightClicked"])
+        self.m_callbacks["onRightClicked"](*self.m_params["onRightClicked"])
         
     def onHover(self):
 #        print("onHover")
         if (self.m_disabled): return
-        self.m_callbacks["onHover"](self.m_params["onHover"])
+        self.m_callbacks["onHover"](*self.m_params["onHover"])
         
     def onEnter(self):
 #        print("onEnter")
@@ -202,7 +202,7 @@ class ButtonBehaviour(property.SpriteBehaviour):
         self.buffer_flag = True;
         self.m_surfaceLock.release();
         
-        self.m_callbacks["onLeave"](self.m_params["onLeave"])
+        self.m_callbacks["onLeave"](*self.m_params["onLeave"])
         
 class BasicButton(ButtonBehaviour, property.Sprite):
     def __init__(self, t_window):
