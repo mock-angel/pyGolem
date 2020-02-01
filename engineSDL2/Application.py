@@ -75,8 +75,6 @@ class Application():
                 if e.type == SDL_MOUSEMOTION:
                     win.m_mouse.x = e.motion.x
                     win.m_mouse.y = e.motion.y
-                    #print("%d , %d\n", e.motion.x, e.motion.y)
-                    
                     
                 #if event.type == KEYDOWN and event.key == K_ESCAPE:#Normal escape route.
                     #experi_win.m_closed = True
@@ -118,7 +116,6 @@ class Application():
                     # "onEnter" if first collided.
                     spr.m_mouseOver = True
                     spr.onEnter()
-            #print("Mouvement to {}, {}".format(w.m_mouse.x, w.m_mouse.y))
             return
             
         if e.type == SDL_MOUSEBUTTONDOWN:

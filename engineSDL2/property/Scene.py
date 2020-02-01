@@ -67,7 +67,7 @@ class SceneHandler():
             self.sceneDrawLock.release()
         
         else: 
-            print("Surface is None")
+            print("Error: SceneHandler:: Surface is None")
     
     def add(self, t_sprite):
         if self.m_currentScene: self.m_currentScene.add(t_sprite)

@@ -72,8 +72,6 @@ def loadSurface(path):
     bpath = path.encode()
     
     loadedSurface = sdlimage.IMG_Load( bpath )
-    print (loadedSurface, bpath)
-    #exit()
     if loadedSurface == None :
         print ("Unable to load surface from path :", bpath)
     
@@ -127,7 +125,6 @@ def create_new_surface(size = (1, 1), name = None, color = (189, 189, 189)):# TO
     if (newSurface == None):
         print(SDL_GetError())
     #SDL_FillRect(newSurface, 0, color);
-    print(SDL_MapRGB(newSurface.contents.format , color[0], color[1], color[2]))
     SDL_FillRect(newSurface, None, SDL_MapRGB(newSurface.contents.format , color[0], color[1], color[2]));
     
     # THis is where we bind to a golemsurface.
