@@ -279,25 +279,11 @@ class Window( WindowBackground, object ):
         pass
 
     def render(self):
-        if (not self.isMinimized()):
-            self.clearRenderer()
-
-            self.scene.render();
-            #self.sp.render()
-            SDL_RenderPresent( self.m_renderer );
-
-        #self.screen.fill(self.screen_color)
-        #self.UpdateEngine.draw(self.screen)
-        #pygame.display.update()
-        pass
+        self.scene.render();
+        
     def draw(self,):
-        if (not self.isMinimized()):
-            self.clearScreen()
+        self.scene.draw(self.screenSurface);
 
-            self.scene.draw(self.screenSurface);
-
-            #Update the surface
-            SDL_UpdateWindowSurface( self.m_window );
     # Threads.
     def updateThread(self):
         print("updateThread:: Started")
@@ -317,11 +303,17 @@ class Window( WindowBackground, object ):
         clock = Golem.time.Clock()
 
         while not self.isClosed():
-            self.renderLock.acquire()
+            if (not self.isMinimized()):
+                self.renderLock.acquire()
+            
+                self.clearRenderer()
+                
+                self.render()
+                
+                SDL_RenderPresent( self.m_renderer );
 
-            self.render()
-
-            self.renderLock.release()
+                self.renderLock.release()
+                
             time.sleep(0)
         print("renderThread:: Stopped")
 
@@ -332,11 +324,19 @@ class Window( WindowBackground, object ):
         clock = Golem.time.Clock()
 
         while not self.isClosed():
-            self.renderLock.acquire()
+            if (not self.isMinimized()):
+                self.renderLock.acquire()
+                
+                self.clearScreen()
+                
+                self.draw()
+                
+                self.scene.draw(self.screenSurface);
 
-            self.draw()#self.screenSurface)
-
-            self.renderLock.release()
+                #Update the surface
+                SDL_UpdateWindowSurface( self.m_window );
+                
+                self.renderLock.release()
             time.sleep(0.01) # 100 frames per second max
         print("drawThread:: Stopped")
 
