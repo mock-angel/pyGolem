@@ -43,7 +43,7 @@ class Surface():
         newTexture = SDL_CreateTextureFromSurface( t_renderer, self )
         
         if not newTexture:
-            print("Unable to create texture from {}! SDL Error: {}".format(bpath.c_str(), SDL_GetError()) )
+            print("Unable to create texture from {}! SDL Error: {}".format("surface", SDL_GetError()) )
         
         return newTexture
         

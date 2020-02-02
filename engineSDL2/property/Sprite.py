@@ -272,8 +272,17 @@ class Sprite(SpriteBehaviour, SpriteDynamics, object):
         return self.m_renderTarget
     
     def setTexture(self, t_texture):
-        self.m_spriteTexture = self.t_texture
-    
+        self.m_spriteTexture = t_texture
+        self.m_rect.width
+        self.m_rect.height
+        import ctypes
+        w = ctypes.pointer(ctypes.c_int(0))
+        h = ctypes.pointer(ctypes.c_int(0))
+        
+        SDL_QueryTexture(t_texture, None, None, w, h)
+        
+        self.m_rect.width = w.contents
+        self.m_rect.height = h.contents
     def setRenderer(self, t_pRenderer):
         self.m_renderTarget = t_pRenderer
     
