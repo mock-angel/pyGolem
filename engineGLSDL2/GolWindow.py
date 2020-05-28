@@ -52,18 +52,10 @@ class Window( WindowBackground, object ):
     __init__(title=bytes(b"Hello"), width=592, height= 460)
         defines necessary parameters and initilies certain variables.
     __del__()
-        here is where we destroy all SDL stuff
+        here is where we destroy all stuff
     init()
-        probably not use this? But is called by user to activate the window.
     render()
-        is called by renderThread() and this is where per frame render takes place.
-    draw()
-        is called by drawThread() and this is where per frame drawing takes place.
-    renderThread()
-        is run as a seperate thread if the window was created using "RENDER" mode
-    drawThread()
-        is run as a seperate thread if the window was created using "DRAW" mode
-    handleEvent()
+    handle_event()
         used by eventThread() run on main thread to process events.
     load()
         FIXME: this is probably broken and model is not usable
@@ -95,9 +87,9 @@ class Window( WindowBackground, object ):
 
 
     DEFAULTPOS = SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED
-    DEFAULTWINDOWFLAGS = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
-    #DEFAULTRENDERFLAGS = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | 
-    DEFAULTRENDERFLAGS = SDL_WINDOW_OPENGL
+    DEFAULTWINDOWFLAGS = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL
+    DEFAULTRENDERFLAGS = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+#    DEFAULTRENDERFLAGS = SDL_WINDOW_OPENGL
     """Used by user to handle and do stuff"""
     def __init__(self, title = bytes(b"Hello"), width = 800, height = 600):
         WindowBackground.__init__(self)
@@ -114,10 +106,6 @@ class Window( WindowBackground, object ):
         self.screen_color = (45, 45, 45)
 
         """NOTE: Render Lock and Surface Locks are never supposed to be called together."""
-
-        self.updateLock = threading.Lock()
-        self.renderLock = threading.Lock()
-        #self.drawLock = threading.Lock()
 
         self.m_width = width
         self.m_height = height
@@ -158,26 +146,21 @@ class Window( WindowBackground, object ):
         
         self.m_window = m_window = window = SDL_CreateWindow(self.m_title,
                               self.windowPos[0], self.windowPos[1],
-                              self.m_width, self.m_height, SDL_WINDOW_OPENGL)
+                              self.m_width, self.m_height, self.m_windowFlags)
 
         if SDL_Init(SDL_INIT_VIDEO) != 0:
             print(SDL_GetError())
             return -1
 
-#        self.m_window = m_window = window = SDL_CreateWindow(b"OpenGL demo",
-#                                   SDL_WINDOWPOS_UNDEFINED,
-#                                   SDL_WINDOWPOS_UNDEFINED, 800, 600,
-#                                   SDL_WINDOW_OPENGL)
-        
         SDL_HideWindow(m_window)
         #self.context = SDL_GL_CreateContext(window)
         
         #SDL_GetVideoInfo( )
         
-#        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3)
-#        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3)
-#        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-#                                            SDL_GL_CONTEXT_PROFILE_CORE)
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3)
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3)
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                                            SDL_GL_CONTEXT_PROFILE_CORE)
         
         
         
@@ -190,17 +173,11 @@ class Window( WindowBackground, object ):
 
             # Create renderer for window.
             # windowsurface = SDL_GetWindowSurface(window)
-            if self.mode == "RENDER":
-                self.m_renderer = SDL_CreateRenderer( m_window, -1,
-                    self.m_rendererFLags )
-
-            elif self.mode == "DRAW":
-                self.screenSurface = SDL_GetWindowSurface( m_window );
         
-            elif self.mode == "OPENGL":
+            if self.mode == "OPENGL":
                 self.context = SDL_GL_CreateContext(m_window)
                 # SETUP
-                print("setup completed")
+                print("Context Created")
                 
             self.m_windowId = SDL_GetWindowID( m_window )
             self.m_shown = True;
@@ -215,13 +192,31 @@ class Window( WindowBackground, object ):
     def load(self):
         pass
     
+    def start(self):
+        self.game_loop()
+    
     def glsetup(self):
         self.context = SDL_GL_CreateContext(self.m_window)
-        GL.glMatrixMode(GL.GL_PROJECTION | GL.GL_MODELVIEW)
-        GL.glLoadIdentity()
-        GL.glOrtho(-400, 400, 300, -300, 0, 1)
+        
+        # Viewport
+        glViewport(0, 0, self.m_width, self.m_height);
+
+#        GL.glOrtho(-400, 400, 300, -300, 0, 1)
     
-    def handleEvent(self, e):
+    def process_event(self):
+        e = event = SDL_Event()
+        
+        while (SDL_PollEvent(ctypes.byref(event)) != 0):
+            # Set all event dependant variables.
+            if e.type == SDL_MOUSEMOTION:
+                self.m_mouse.x = e.motion.x
+                self.m_mouse.y = e.motion.y
+            
+            # Process them in chunks.
+            self.handle_event(e);
+            self.handle_high_level_event(e)
+                
+    def handle_event(self, e):
         if( e.type == SDL_WINDOWEVENT ):
             if e.window.event == SDL_WINDOWEVENT_SHOWN:
                 self.m_shown = True
@@ -231,40 +226,15 @@ class Window( WindowBackground, object ):
 
             if e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED:
                 #Get new dimensions and repaint.
-                #lock mutexes
-                self.renderLock.acquire()
-                self.updateLock.acquire()
                 
                 self.m_width = e.window.data1;
                 self.m_height = e.window.data2;
 
-                # Fixed the instance where the only operation for draw mode 
-                # calls clearRenderer(). Added statements for render 
-                # mode as well.
-                if self.mode == "RENDER":
-                    #self.m_windowSurface = SDL_GetWindowSurface(self.m_window)
-                    self.clearRenderer()
-                    #SDL_UpdateWindowSurface(self.m_window)
-                
-                if self.mode == "DRAW":
-                    #self.m_windowSurface = SDL_GetWindowSurface(self.m_window)
-                    self.clearScreen()
-                    
-                self.updateLock.release()
-                self.renderLock.release()
-                #unlock mutexes
+                GL.glViewport(0, 0, self.m_width, self.m_height);
                 
             if e.window.event == SDL_WINDOWEVENT_EXPOSED:
                 #Repaint on expose.
-                #lock mutexes
-                self.renderLock.acquire();
-                if (self.mode == "RENDER"):
-                    SDL_RenderPresent(self.m_renderer);
-                else:
-                    SDL_UpdateWindowSurface( self.m_window );
-                self.renderLock.release();
-                #unlock mutexes
-
+                pass
             if e.window.event == SDL_WINDOWEVENT_ENTER:
                 self.m_mouseFocus = True
 
@@ -291,57 +261,83 @@ class Window( WindowBackground, object ):
                 #SDL_HideWindow( self.m_window )
                 self.hide()
 
-                self.renderLock.acquire(); # First lock the render thread.
-                self.updateLock.acquire(); # Second lock the update thread.
-
                 self.m_window = None;
                 self.m_renderer = None;
                 self.m_closed = True;
-
-                self.renderLock.release();
-                self.updateLock.release();
-
+    
+    def handle_high_level_event(self, e):
+        if e.type == SDL_MOUSEMOTION:
+            sprites = self.sprites();
+            for spr in sprites:
+                if (spr.m_mouseOver): # If entered before.
+                    # event is onHover() if mouse still inside rectangle.
+                    if ( self.m_mouse.isCollided(spr.m_rect) ):
+                        if spr.m_pressed: spr.onPressed()# call onDrag from here.
+                        else: spr.onHover()
+                    else:
+                        # NOTE: spr.m_pressed should not be changed if you
+                        # intend to let the user perform the 
+                        spr.m_pressed = False 
+                        
+                        spr.m_mouseOver = False
+                        spr.onLeave()
+                    
+                elif ( self.m_mouse.isCollided(spr.m_rect) ):
+                    # "onEnter" if first collided.
+                    spr.m_mouseOver = True
+                    spr.onEnter()
+            #print("Mouvement to {}, {}".format(w.m_mouse.x, w.m_mouse.y))
+            return
+            
+        if e.type == SDL_MOUSEBUTTONDOWN:
+            sprites = self.sprites();
+            if (e.button.button == SDL_BUTTON_LEFT):
+                #LMB clicked.
+                for spr in sprites:
+                    if spr.m_mouseOver:
+                        #if w.m_mouse.isCollided(spr.m_rect): spr.onHover()
+                        #else:
+                            spr.m_pressed = True
+                            spr.onDrop()
+                            spr.onPressed()
+            return
+            
+        if e.type == SDL_MOUSEBUTTONUP:
+            sprites = self.sprites();
+            if (e.button.button == SDL_BUTTON_LEFT):
+                for spr in sprites:
+                    if ( spr.m_pressed ):
+                        if ( self.m_mouse.isCollided(spr.m_rect) ):
+                            spr.m_pressed = False
+                            spr.onReleased()
+                            spr.onClicked()
+                            spr.onLift()# Simulates onClicked here.
+                            # TODO: Create option to set onClicked before onLift
+                            # or before onDrop() calls.
+            return
+            
+        if e.type == SDL_KEYDOWN:
+            print("Physical {} key acting as {} key\n".format(
+                SDL_GetScancodeName(e.key.keysym.scancode),
+                SDL_GetKeyName(e.key.keysym.sym)));
+            return
+            
+        if e.type == SDL_KEYUP:
+            return
+        
     def update(self):
         """The application calls this in a thread in a loop."""
         time.sleep(0.1)
 
     def render(self):
         if (not self.isMinimized()):
-            self.clearRenderer()
-
-            self.scene.render();
-            SDL_RenderPresent( self.m_renderer );
-#            SDL_GL_SwapWindow(self.m_window)
-            
-    def gl_render(self):
-        if (not self.isMinimized()):
             self.clearGl()
-            SDL_Delay(10)
-            #self.scene.gl_render();
-#            SDL_GL_SwapWindow(self.m_window)
-    
-#    def draw(self,):
-#        if (not self.isMinimized()):
-#            self.clearScreen()
+            
+            self.scene.render();
+            
+            SDL_GL_SwapWindow(self.m_window)
 
-#            self.scene.draw(self.screenSurface);
-
-#            #Update the surface
-#            SDL_UpdateWindowSurface( self.m_window );
-#    # Threads.
-    def updateThread(self):
-        print("updateThread:: Started")
-
-        while not self.isClosed():
-            self.updateLock.acquire()
-
-            self.update()
-
-            self.updateLock.release()
-
-        print("updateThread:: Stopped")
-
-    def renderThread(self):
+    def game_loop(self):
         print("renderThread:: Started")
         #clock = pygame.time.Clock()
         clock = Golem.time.Clock()
@@ -349,55 +345,21 @@ class Window( WindowBackground, object ):
         self.glsetup()
         
         while not self.isClosed():
-            self.renderLock.acquire()
-
-            if self.mode == "RENDER":
-                self.render()
+            self.process_event()
             
-            elif self.mode == "OPENGL": 
-                self.gl_render()
+            self.update()
+            
+            self.render()
 
-            self.renderLock.release()
-            time.sleep(0)
         print("renderThread:: Stopped")
-
-    def drawThread(self):
-        """Calls the draw function"""
-        print("drawThread:: Started")
-        #clock = pygame.time.Clock()
-        clock = Golem.time.Clock()
-
-        while not self.isClosed():
-            self.renderLock.acquire()
-
-            self.draw()#self.screenSurface)
-
-            self.renderLock.release()
-            time.sleep(0.01) # 100 frames per second max
-        print("drawThread:: Stopped")
-
-    def clearRenderer(self):
-        SDL_RenderClear( self.m_renderer )
-
-    def clearScreen(self):
-        SDL_FillRect(self.screenSurface, None, SDL_MapRGB(self.screenSurface.contents.format, self.m_bgColor.r, self.m_bgColor.g, self.m_bgColor.b))
     
     def clearGl(self):
-        x, y = 0, 30
-        GL.glClearColor(0, 0, 0, 1)
+        glClearColor(0.2, 0.3, 0.3, 1.0);
+
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-        GL.glRotatef(10.0, 0.0, 0.0, 1.0)
-        GL.glBegin(GL.GL_TRIANGLES)
-        GL.glColor3f(1.0, 0.0, 0.0)
-        GL.glVertex2f(x, y + 90.0)
-        GL.glColor3f(0.0, 1.0, 0.0)
-        GL.glVertex2f(x + 90.0, y - 90.0)
-        GL.glColor3f(0.0, 0.0, 1.0)
-        GL.glVertex2f(x - 90.0, y - 90.0)
-        GL.glEnd()
-        print(glGetError())
+        
         SDL_GL_SwapWindow(self.m_window);
-        SDL_Delay(10)
+        
     # Getters.
     def getWindowId(self):
         return self.m_windowId
@@ -433,17 +395,18 @@ class Window( WindowBackground, object ):
     def title(self, t_title):
         self.m_title = t_title
         return self
+        
     @size.setter
     def size(self, t_size):
         self.m_size = t_size
         self.m_width = t_size[0]
         self.m_height = t_size[1]
+        
     # Mutators  IMPORTANT
     def hide(self):
         """Hides the window and makes it disappear."""
         self.m_shown = False
         SDL_HideWindow( self.m_window )
-        print("Hiding window")
 
     def show(self):
         """Unhides the window if hidden."""
@@ -471,7 +434,7 @@ class Window( WindowBackground, object ):
         SDL_RaiseWindow(self.m_window)
 
     # Widget management. Application based methods.
-    def newWidget(self, classname, *params):
+    def new_widget(self, classname, *params):
         return classname(self, *params)
 
     #def showAll(self):

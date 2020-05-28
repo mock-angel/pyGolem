@@ -34,27 +34,6 @@ class Application():
         new_window.init()
         self.m_windowsMap[new_window.getWindowId()] = new_window
         
-        t_update = Thread(target=new_window.updateThread, args=() )
-        t_update.start()
-        self.m_threads.append(t_update)
-        
-        if new_window.mode == "RENDER":
-            t_render = Thread(target=new_window.renderThread, args=() )
-            t_render.start()
-            self.m_threads.append(t_render)
-        elif new_window.mode == "DRAW":
-            t_render = Thread(target=new_window.drawThread, args=() )
-            t_render.start()
-            self.m_threads.append(t_render)
-        
-        elif new_window.mode == "OPENGL":
-            t_render = Thread(target=new_window.renderThread, args=() )
-            t_render.start()
-            self.m_threads.append(t_render)
-        
-        self.m_threads.append(t_update)
-        
-        
         return new_window
         
     def wait_till_thread_closed(self):
@@ -62,7 +41,7 @@ class Application():
             thread.join()
             
     def start(self):
-        
+        return
         self.eventThread()
         self.wait_till_thread_closed()
     

@@ -153,9 +153,9 @@ class MineWindow(Golem.Window):
         sp = Golem.property.BasicButton(self)
         
         # Create themes.
-        default_mine = Golem.create_new_surface(size = (32,32), name = "sprite", color = (50, 5, 5))
-        default_hover_mine = Golem.create_new_surface(size = (32,32), name = "sprite", color = (215, 5, 5))
-        default_pressed_mine = Golem.create_new_surface(size = (32,32), name = "sprite", color = (50, 200, 58))
+        default_mine = Golem.create_new_surface(size = (320,320), name = "sprite", color = (50, 5, 5))
+        default_hover_mine = Golem.create_new_surface(size = (320,320), name = "sprite", color = (215, 5, 5))
+        default_pressed_mine = Golem.create_new_surface(size = (320,320), name = "sprite", color = (50, 200, 58))
         
         default_theme = Golem.property.create_button_theme(default_mine, default_hover_mine, default_pressed_mine)
         

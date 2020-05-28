@@ -224,7 +224,7 @@ class Sprite(SpriteBehaviour, SpriteDynamics, object):
         
         # None if using surfaces only mode.
         self.m_renderTarget = t_window.getRenderer() if t_window else None
-        if not self.m_renderTarget:
+        if self.m_renderTarget == None:
             print("Sprite.__init__(self): created without any renderTarget.")
             #Golem.log_error("Sprite.__init__(self): created without any renderTarget.")
         
@@ -366,7 +366,7 @@ class Sprite(SpriteBehaviour, SpriteDynamics, object):
         
     def right_clicked(self, callback, *params):
         self.m_callbacks["onRightClicked"] = callback
-        self.m_params["onRightClicked"] = params    
+        self.m_params["onRightClicked"] = params
     
     def enter(self, callback, *params):
         self.m_callbacks["onEnter"] = callback

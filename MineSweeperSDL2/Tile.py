@@ -1,4 +1,6 @@
 #Tile.py
+from sdl2 import *
+
 import Golem
 from nonGraphics import *
 from TileEssentials import  MineImages
@@ -32,7 +34,7 @@ class GameScene(Golem.property.Scene):
 
     def load(self):
         self.tile_res.load_surfaces()
-
+        
 #        self.flag_count_text = TextLine()
 #        self.flag_count_text.lable = "flag_count"
 #        self.flag_count_text.font_size = 22
@@ -89,7 +91,11 @@ class GameScene(Golem.property.Scene):
     def tile_blown(self, tile):
         pass
 
-
+    def render(self):
+        Golem.property.Scene.render(self)
+        circle(self.window.m_renderer, None , (100, 100), 10)
+        pass
+        
 class Tile(Golem.property.BasicButton):
     def __init__(self, pos, tile_res, mine_board):
         Golem.property.BasicButton.__init__(self)

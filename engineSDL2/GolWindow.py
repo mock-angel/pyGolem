@@ -146,7 +146,8 @@ class Window( WindowBackground, object ):
 
         # NOTE: Used only when window is opened in drawing mode.
         self.screenSurface = None
-
+        
+#        self.init()
     def __del__(self):
         SDL_DestroyRenderer(self.m_renderer)
         SDL_DestroyWindow(self.m_window)
